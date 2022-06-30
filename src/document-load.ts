@@ -1,25 +1,31 @@
-import { ConsoleSpanExporter, SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import { ZoneContextManager } from '@opentelemetry/context-zone';
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { registerInstrumentations } from '@opentelemetry/instrumentation';
+import { FetchInstrumentation } from '@opentelemetry/instrumentation-fetch';
+import { XMLHttpRequestInstrumentation } from '@opentelemetry/instrumentation-xml-http-request';
+import { Resource } from '@opentelemetry/resources';
+import { ConsoleSpanExporter, SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import { WebTracerProvider } from '@opentelemetry/sdk-trace-web';
-import { getWebAutoInstrumentations } from '@opentelemetry/auto-instrumentations-web';
-import { B3Propagator } from '@opentelemetry/propagator-b3';
+import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 
-const provider = new WebTracerProvider();
+const exporter = new OTLPTraceExporter({
+  // url: 'http://otel-collector-test.za-tech.net/v1/traces',
+  // url: 'http://localhost:4318/v1/traces',
+  url: 'http://172.28.34.35:4318/v1/traces',
+});
+const provider = new WebTracerProvider({
+  resource: new Resource({
+    [SemanticResourceAttributes.SERVICE_NAME]: 'ishawnwang-antd-pro-demo',
+  }),
+});
 provider.addSpanProcessor(new SimpleSpanProcessor(new ConsoleSpanExporter()));
+provider.addSpanProcessor(new SimpleSpanProcessor(exporter));
 provider.register({
   contextManager: new ZoneContextManager(),
-  propagator: new B3Propagator(),
 });
 
 registerInstrumentations({
-  instrumentations: [
-    getWebAutoInstrumentations({
-      '@opentelemetry/instrumentation-xml-http-request': {
-        clearTimingResources: true,
-      },
-    }),
-  ],
+  instrumentations: [new FetchInstrumentation(), new XMLHttpRequestInstrumentation()],
 });
 
 export default () => {};
