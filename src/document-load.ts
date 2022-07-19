@@ -11,7 +11,7 @@ import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
 const exporter = new OTLPTraceExporter({
   // url: 'http://otel-collector-test.za-tech.net/v1/traces',
   // url: 'http://localhost:4318/v1/traces',
-  url: 'http://172.28.34.35:4318/v1/traces',
+  url: 'https://trace-collector.zhongan.io/v1/traces',
 });
 const provider = new WebTracerProvider({
   resource: new Resource({
@@ -27,5 +27,11 @@ provider.register({
 registerInstrumentations({
   instrumentations: [new FetchInstrumentation(), new XMLHttpRequestInstrumentation()],
 });
+
+setTimeout(() => {
+  fetch('https://jsonplaceholder.typicode.com/posts', { method: 'POST', body: '{}' })
+    .then((response) => response.json())
+    .then((json) => console.log(json));
+}, 1000);
 
 export default () => {};
