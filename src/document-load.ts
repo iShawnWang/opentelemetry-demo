@@ -9,6 +9,7 @@ import { WebTracerProvider } from '@opentelemetry/sdk-trace-web';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 
 const exporter = new OTLPTraceExporter({
+  headers: {},
   // url: 'http://otel-collector-test.za-tech.net/v1/traces',
   // url: 'http://localhost:4318/v1/traces',
   url: 'https://trace-collector.zhongan.io/v1/traces',
